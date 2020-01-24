@@ -2,20 +2,20 @@ package org.mars
 
 class Rover(val initialPosition: RoverPosition, plateau: Plateau) {
 
-  var currentPosition: RoverPosition = initialPosition
-
   def move(movingInstructions: String): RoverPosition = {
+    var currentPosition: RoverPosition = initialPosition
+
     for (instruction <- movingInstructions) {
-      instruction.toString match {
-        case "L" => currentPosition = turnLeft()
-        case "R" => currentPosition = turnRight()
-        case "M" => currentPosition = moveForward()
+      currentPosition = instruction.toString match {
+        case "L" => turnLeft(currentPosition)
+        case "R" => turnRight(currentPosition)
+        case "M" => moveForward(currentPosition)
       }
     }
     currentPosition
   }
 
-  private def turnLeft(): RoverPosition = {
+  private def turnLeft(currentPosition: RoverPosition): RoverPosition = {
     val newPosition = currentPosition.direction match {
       case "N" => currentPosition.copy(direction = "W")
       case "S" => currentPosition.copy(direction = "E")
@@ -26,7 +26,7 @@ class Rover(val initialPosition: RoverPosition, plateau: Plateau) {
     isNewPositionValid(newPosition)
   }
 
-  private def turnRight(): RoverPosition = {
+  private def turnRight(currentPosition: RoverPosition): RoverPosition = {
     val newPosition = currentPosition.direction match {
       case "N" => currentPosition.copy(direction = "E")
       case "S" => currentPosition.copy(direction = "W")
@@ -36,7 +36,7 @@ class Rover(val initialPosition: RoverPosition, plateau: Plateau) {
     isNewPositionValid(newPosition)
   }
 
-  private def moveForward(): RoverPosition = {
+  private def moveForward(currentPosition: RoverPosition): RoverPosition = {
     val newPosition = currentPosition.direction match {
       case "N" => currentPosition.copy(y = currentPosition.y + 1)
       case "S" => currentPosition.copy(y = currentPosition.y - 1)
@@ -46,9 +46,9 @@ class Rover(val initialPosition: RoverPosition, plateau: Plateau) {
     isNewPositionValid(newPosition)
   }
 
-  private def isNewPositionValid(newPosition: RoverPosition) = {
+  private def isNewPositionValid(newPosition: RoverPosition): RoverPosition = {
     if (!plateau.isValidGridValue(newPosition.x, newPosition.y)) {
-      throw RoverException("Invalid Input. Input takes Rover outside Plateau")
+      throw RoverException(s"Invalid Input. Moving to ${(newPosition.x, newPosition.y)} takes Rover outside Plateau")
     }
     newPosition
   }
