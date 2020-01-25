@@ -7,41 +7,22 @@ class Rover(val initialPosition: RoverPosition, plateau: Plateau) {
 
     for (instruction <- movingInstructions) {
       currentPosition = instruction.toString match {
-        case "L" => turnLeft(currentPosition)
-        case "R" => turnRight(currentPosition)
+        case "L" | "R" =>
+          val newDirection = currentPosition.direction.spin(instruction.toString)
+          currentPosition.copy(direction = newDirection)
         case "M" => moveForward(currentPosition)
+        case _ => throw RoverException(s"Invalid moving instruction: $instruction")
       }
     }
-    currentPosition
-  }
-
-  private def turnLeft(currentPosition: RoverPosition): RoverPosition = {
-    val newPosition = currentPosition.direction match {
-      case "N" => currentPosition.copy(direction = "W")
-      case "S" => currentPosition.copy(direction = "E")
-      case "E" => currentPosition.copy(direction = "N")
-      case "W" => currentPosition.copy(direction = "S")
-    }
-
-    isNewPositionValid(newPosition)
-  }
-
-  private def turnRight(currentPosition: RoverPosition): RoverPosition = {
-    val newPosition = currentPosition.direction match {
-      case "N" => currentPosition.copy(direction = "E")
-      case "S" => currentPosition.copy(direction = "W")
-      case "E" => currentPosition.copy(direction = "S")
-      case "W" => currentPosition.copy(direction = "N")
-    }
-    isNewPositionValid(newPosition)
+    isNewPositionValid(currentPosition)
   }
 
   private def moveForward(currentPosition: RoverPosition): RoverPosition = {
     val newPosition = currentPosition.direction match {
-      case "N" => currentPosition.copy(y = currentPosition.y + 1)
-      case "S" => currentPosition.copy(y = currentPosition.y - 1)
-      case "E" => currentPosition.copy(x = currentPosition.x + 1)
-      case "W" => currentPosition.copy(x = currentPosition.x - 1)
+      case CardinalDirection("N") => currentPosition.copy(y = currentPosition.y + 1)
+      case CardinalDirection("S") => currentPosition.copy(y = currentPosition.y - 1)
+      case CardinalDirection("E") => currentPosition.copy(x = currentPosition.x + 1)
+      case CardinalDirection("W") => currentPosition.copy(x = currentPosition.x - 1)
     }
     isNewPositionValid(newPosition)
   }
@@ -55,6 +36,6 @@ class Rover(val initialPosition: RoverPosition, plateau: Plateau) {
 
 }
 
-case class RoverPosition(x: Int, y: Int, direction: String)
+case class RoverPosition(x: Int, y: Int, direction: CardinalDirection)
 
 case class RoverException(message: String) extends RuntimeException(message)
